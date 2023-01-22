@@ -14,6 +14,12 @@
     "categories": {
       "auth": {
         "sampleappf5fe32c4": {}
+      },
+      "api": {
+        "notesapp": {}
+      },
+      "storage": {
+        "imagestorage": {}
       }
     }
   }
