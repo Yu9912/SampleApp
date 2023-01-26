@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { API, Storage } from 'aws-amplify';
-import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+import { AmplifyAuthenticator, AmplifySignOut, AmplifySignIn, AmplifySignUp } from '@aws-amplify/ui-react';
 import { listNotes } from './graphql/queries';
 import { createNote as createNoteMutation, deleteNote as deleteNoteMutation } from './graphql/mutations';
+import { I18n } from "aws-amplify";
 
+// 以下のような形で日本語と英語を紐づけた辞書を作成する
+const dict = {
+  ja: {
+    "Forgot your password?": "パスワードを忘れた場合",
+    "Reset password": "パスワードをリセット",
+    "No account?": "アカウントを持っていない場合",
+    "Create account": "サインアップ",
+  },
+};
+
+// 作成した辞書を渡して反映させる
+I18n.putVocabularies(dict);
+I18n.setLanguage("ja");
 
 const initialFormState = { name: '', description: '' }
 
@@ -55,6 +69,51 @@ function App() {
   }
 
   return (
+  // ログインUIのカスタマイズ
+  <AmplifyAuthenticator>
+    <AmplifySignIn
+       slot="sign-in"
+        headerText="サインイン"
+        submitButtonText="サインイン"
+        formFields={[
+          {
+            type: "username",
+            label: "ユーザ名 *",
+            placeholder: "ユーザ名を入力",
+            required: true,
+          },
+          {
+            type: "password",
+            label: "パスワード *",
+            placeholder: "パスワードを入力",
+            required: true,
+          },
+        ]}
+      />
+
+      <AmplifySignUp
+        slot="sign-up"
+        headerText="サインアップ"
+        haveAccountText=""
+        signInText="サインインに戻る"
+        submitButtonText="アカウント作成"
+
+        // formFields内に必要な項目だけを指定することで
+        // 電話番号を除外できる
+        formFields={[
+          {
+            type: "username",
+            label: "ユーザ名を入力してください",
+            placeholder: "ユーザ名",
+          },
+          {
+            type: "password",
+            label: "パスワードを入力してください",
+            placeholder: "パスワード",
+            inputProps: { required: true, autocomplete: "new-password" },
+          },
+        ]}
+      />
     <div className="App">
       <h1>サンプルページ</h1>
       <input
@@ -85,7 +144,8 @@ function App() {
       </div>
       <AmplifySignOut />
     </div>
+    </AmplifyAuthenticator>
   );
 }
 
-export default withAuthenticator(App);
+export default App;
